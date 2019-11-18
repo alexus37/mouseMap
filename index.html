@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Mouse Map</title>
+    <style>
+      body, html { margin:0; padding:0; height:100%;}
+      body { font-family:sans-serif; }
+      body * { font-weight:200;}
+      #heatmapContainerWrapper { width:100%; height:100%; position:absolute; overflow: hidden; }
+      #heatmapContainer { width:100%; height:100%;  position:absolute !important; }
+      #heatmapContainer iframe { display: block; width:100%; height:100%;}
+      h1 { position:absolute; background:black; color:white; padding:10px; font-weight:200; z-index:10000;}
+      #all-examples-info { position:absolute; background:white; font-size:16px; padding:20px; top:100px; width:350px; line-height:150%; border:1px solid rgba(0,0,0,.2);}
+    </style>
+  </head>
+  <body>
+    <div id="heatmapContainerWrapper">
+      <div id="heatmapContainer">
+      </div>
+    </div>
+    <script src="/heatmap.min.js"></script>
+    <script>
+      window.onload = function() {
+        // load the iframe
+        const heatmapContainer = document.getElementById('heatmapContainerWrapper');
+
+        // location
+
+        var url = new URL(window.location.href);
+        var iframesource = url.searchParams.get("iframesource");
+        console.log(iframesource);
+
+        const iframe = document.createElement("iframe");
+        iframe.setAttribute("src", iframesource || "http://localhost:8080/");
+        iframe.style.width = "100%";
+        iframe.style.height = "100%";
+
+        heatmapContainer.appendChild(iframe);
+
+        // create a heatmap instance
+        var heatmap = h337.create({
+          container: document.getElementById('heatmapContainer'),
+          maxOpacity: .6,
+          radius: 50,
+          blur: .90,
+          backgroundColor: 'rgba(0, 0, 0, 0.0)'
+        });
+
+        heatmapContainer.onmousemove = heatmapContainer.ontouchmove = function(e) {
+          // we need preventDefault for the touchmove
+          e.preventDefault();
+          var x = e.layerX;
+          var y = e.layerY;
+          if (e.touches) {
+            x = e.touches[0].pageX;
+            y = e.touches[0].pageY;
+          }
+
+          heatmap.addData({ x: x, y: y, value: 1 });
+
+        };
+
+        heatmapContainer.onclick = function(e) {
+          var x = e.layerX;
+          var y = e.layerY;
+          heatmap.addData({ x: x, y: y, value: 1 });
+        };
+
+      };
+    </script>
+  </body>
+</html>
